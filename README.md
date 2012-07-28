@@ -14,4 +14,4 @@ Installation of dependencies:
 
 Run server using:
 
-    ./app.js
+    ./server.js
