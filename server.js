@@ -19,7 +19,6 @@ function serveStatic(response, cache, absPath) {
     path.exists(absPath, function(exists) {
       if (exists) {
         fs.readFile(absPath, function(err, data) {
-          console.log(mime.lookup(path.basename(absPath)));
           cache[absPath] = data;
           response.writeHead('content-type', mime.lookup(path.basename(absPath)));
           response.end(data);
