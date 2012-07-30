@@ -64,12 +64,6 @@ io.sockets.on('connection', function (socket) {
   socket.join('Lobby');
   socket.emit('joinResult', {room: 'Lobby'});
 
-  socket.on('disconnect', function() {
-    nameIndex = namesUsed.indexOf(nickNames[socket.id]);
-    delete namesUsed[nameIndex];
-    delete nickNames[socket.id];
-  });
-
   name = 'Guest' + guestNumber;
   nickNames[socket.id] = name;
   socket.emit('nameResult', {
@@ -78,6 +72,12 @@ io.sockets.on('connection', function (socket) {
   });
   namesUsed.push(name);
   guestNumber += 1; 
+
+  socket.on('message', function (message) {
+    socket.broadcast.to(message.room).emit('message', {
+      text: nickNames[socket.id] + ': ' + message.text
+    });
+  });
 
   socket.on('nameAttempt', function(name) {
     if (name.indexOf('Guest') == 0) {
@@ -108,13 +108,13 @@ io.sockets.on('connection', function (socket) {
     socket.emit('joinResult', {room: room.newRoom});
   });
 
-  socket.on('message', function (message) {
-    socket.broadcast.to(message.room).emit('message', {
-      text: nickNames[socket.id] + ': ' + message.text
-    });
-  });
-
   socket.on('rooms', function() {
     socket.emit('rooms', io.sockets.manager.rooms);
+  });
+
+  socket.on('disconnect', function() {
+    nameIndex = namesUsed.indexOf(nickNames[socket.id]);
+    delete namesUsed[nameIndex];
+    delete nickNames[socket.id];
   });
 });
