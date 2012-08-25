@@ -13,14 +13,20 @@ function send404(response) {
 
 function serveStatic(response, cache, absPath) {
   if (cache[absPath]) {
-    response.writeHead('content-type', mime.lookup(path.basename(absPath)));
+    response.writeHead(
+      'content-type',
+      mime.lookup(path.basename(absPath))
+    );
     response.end(cache[absPath]);
   } else {
     path.exists(absPath, function(exists) {
       if (exists) {
         fs.readFile(absPath, function(err, data) {
           cache[absPath] = data;
-          response.writeHead('content-type', mime.lookup(path.basename(absPath)));
+          response.writeHead(
+            'content-type',
+            mime.lookup(path.basename(absPath))
+          );
           response.end(data);
         });
       } else {
