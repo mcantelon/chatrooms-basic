@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var http  = require('http')
   , fs    = require('fs')
   , path  = require('path')
@@ -66,25 +65,15 @@ var io = require('socket.io').listen(server)
 
 io.set('log level', 1);
 
-io.sockets.on('connection', function (socket) {
-  socket.join('Lobby');
-  socket.emit('joinResult', {room: 'Lobby'});
-
-  name = 'Guest' + guestNumber;
-  nickNames[socket.id] = name;
-  socket.emit('nameResult', {
-    success: true,
-    name: name
-  });
-  namesUsed.push(name);
-  guestNumber += 1; 
-
+function handleMessageBroadcasting(socket, nickNames) {
   socket.on('message', function (message) {
     socket.broadcast.to(message.room).emit('message', {
       text: nickNames[socket.id] + ': ' + message.text
     });
   });
+}
 
+function handleNameChangeAttempts(socket, nickNames, namesUsed) {
   socket.on('nameAttempt', function(name) {
     if (name.indexOf('Guest') == 0) {
       socket.emit('nameResult', {
@@ -107,20 +96,44 @@ io.sockets.on('connection', function (socket) {
       }
     }
   });
+}
 
+function handleRoomJoining(socket) {
   socket.on('join', function(room) {
     socket.leave(room.previousRoom);
     socket.join(room.newRoom);
     socket.emit('joinResult', {room: room.newRoom});
   });
+}
 
-  socket.on('rooms', function() {
-    socket.emit('rooms', io.sockets.manager.rooms);
-  });
-
+function handleClientDisconnection(socket, nickNames, namesUsed) {
   socket.on('disconnect', function() {
     nameIndex = namesUsed.indexOf(nickNames[socket.id]);
     delete namesUsed[nameIndex];
     delete nickNames[socket.id];
   });
+}
+
+io.sockets.on('connection', function (socket) {
+  socket.join('Lobby');
+  socket.emit('joinResult', {room: 'Lobby'});
+
+  name = 'Guest' + guestNumber;
+  nickNames[socket.id] = name;
+  socket.emit('nameResult', {
+    success: true,
+    name: name
+  });
+  namesUsed.push(name);
+  guestNumber += 1;
+
+  handleMessageBroadcasting(socket, nickNames);
+  handleNameChangeAttempts(socket, nickNames, namesUsed);
+  handleRoomJoining(socket);
+
+  socket.on('rooms', function() {
+    socket.emit('rooms', io.sockets.manager.rooms);
+  });
+
+  handleClientDisconnection(socket, nickNames, namesUsed);
 });
