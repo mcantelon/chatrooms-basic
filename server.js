@@ -11,23 +11,23 @@ function send404(response) {
   response.end();
 }
 
+function sendFile(response, filePath, fileContents) {
+  response.writeHead(
+    'content-type',
+    mime.lookup(path.basename(filePath))
+  );
+  response.end(fileContents);
+}
+
 function serveStatic(response, cache, absPath) {
   if (cache[absPath]) {
-    response.writeHead(
-      'content-type',
-      mime.lookup(path.basename(absPath))
-    );
-    response.end(cache[absPath]);
+    sendFile(response, absPath, cache[absPath]);
   } else {
     path.exists(absPath, function(exists) {
       if (exists) {
         fs.readFile(absPath, function(err, data) {
           cache[absPath] = data;
-          response.writeHead(
-            'content-type',
-            mime.lookup(path.basename(absPath))
-          );
-          response.end(data);
+          sendFile(response, absPath, data);
         });
       } else {
         send404(response);
