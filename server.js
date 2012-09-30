@@ -22,7 +22,7 @@ function serveStatic(response, cache, absPath) {
   if (cache[absPath]) {
     sendFile(response, absPath, cache[absPath]);
   } else {
-    path.exists(absPath, function(exists) {
+    fs.exists(absPath, function(exists) {
       if (exists) {
         fs.readFile(absPath, function(err, data) {
           cache[absPath] = data;
