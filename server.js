@@ -25,8 +25,12 @@ function serveStatic(response, cache, absPath) {
     fs.exists(absPath, function(exists) {
       if (exists) {
         fs.readFile(absPath, function(err, data) {
-          cache[absPath] = data;
-          sendFile(response, absPath, data);
+          if (err) {
+            send404(response);
+          } else {
+            cache[absPath] = data;
+            sendFile(response, absPath, data);
+          }
         });
       } else {
         send404(response);
@@ -44,12 +48,8 @@ var server = http.createServer(function(request, response) {
     filePath = 'public' + request.url;
   }
 
-  if (!filePath) {
-    send404(response);
-  } else {
-    var absPath = './' + filePath;
-    serveStatic(response, cache, absPath);
-  }
+  var absPath = './' + filePath;
+  serveStatic(response, cache, absPath);
 });
 
 server.listen(3000, function() {
