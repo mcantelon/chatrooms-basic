@@ -4,9 +4,7 @@ Very basic.
 
 No retention of messages in room.
 
-You want to know who else is in the room?
-
-This will never happen for you.
+Nothing to alert as to who else is in the room too. Will add that.
 
 Installation of dependencies:
 
