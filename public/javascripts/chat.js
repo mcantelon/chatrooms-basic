@@ -10,14 +10,13 @@ Chat.prototype.sendMessage = function(room, text) {
   this.socket.emit('message', message);
 };
 
-Chat.prototype.changeRoom = function(currentRoom, newRoom) {
+Chat.prototype.changeRoom = function(room) {
   this.socket.emit('join', {
-    newRoom: newRoom,
-    previousRoom: currentRoom
+    newRoom: room,
   });
 };
 
-Chat.prototype.processCommand = function(currentRoom, command) {
+Chat.prototype.processCommand = function(command) {
   var words = command.split(' ')
     , command = words[0].substring(1, words[0].length).toLowerCase()
     , message = false;
@@ -25,8 +24,8 @@ Chat.prototype.processCommand = function(currentRoom, command) {
   switch(command) {
     case 'join':
       words.shift();
-      var newRoom = words.join(' '); 
-      this.changeRoom(currentRoom, newRoom);
+      var room = words.join(' '); 
+      this.changeRoom(room);
       break;
 
     case 'nick':

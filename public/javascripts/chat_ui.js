@@ -13,7 +13,7 @@ function processUserInput(chatApp, socket) {
     , systemMessage;
 
   if (message[0] == '/') {
-    systemMessage = chatApp.processCommand($('#room').text(), message);
+    systemMessage = chatApp.processCommand(message);
     if (systemMessage) {
       $('#messages').append(divSystemContentElement(systemMessage));
     }
@@ -61,10 +61,7 @@ $(document).ready(function() {
     }
 
     $('#room-list div').click(function() {
-      chatApp.processCommand(
-        $('#room').text(),
-        '/join ' + $(this).text()
-      );
+      chatApp.processCommand('/join ' + $(this).text());
       $('#send-message').focus();
     });
   });
